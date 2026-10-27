@@ -1,0 +1,17 @@
+{
+  "name": "Samsung TV Remote",
+  "short_name": "TV Remote",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/other-apps.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

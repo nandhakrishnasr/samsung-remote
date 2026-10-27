@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TV Remote">
+  <meta name="theme-color" content="#0a0d14">
+  <link rel="manifest" href="manifest.json">
+  <title>Samsung Smart TV Remote</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- MQTT.js over WebSocket -->
+  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <div class="remote-wrapper">
+    <!-- Header -->
+    <header class="remote-header">
+      <div id="statusBadge" class="status-badge" onclick="openSettings()">
+        <span class="status-dot"></span>
+        <span id="statusText">Connecting...</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSettings()" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <button class="icon-btn power-btn" onclick="sendKey('KEY_POWER')" aria-label="Power">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+            <line x1="12" y1="2" x2="12" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- D-Pad / Touch Area -->
+    <div class="dpad-container" id="dpadTouchArea">
+      <div class="dpad">
+        <button class="dpad-btn dpad-up" onclick="sendKey('KEY_UP')" aria-label="Up">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+        </button>
+        <button class="dpad-btn dpad-down" onclick="sendKey('KEY_DOWN')" aria-label="Down">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <button class="dpad-btn dpad-left" onclick="sendKey('KEY_LEFT')" aria-label="Left">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="dpad-btn dpad-right" onclick="sendKey('KEY_RIGHT')" aria-label="Right">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <button class="dpad-btn dpad-center" onclick="sendKey('KEY_ENTER')" aria-label="Select">
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- Secondary Row (Back, Home, Play) -->
+    <div class="controls-row">
+      <button class="pill-btn" onclick="sendKey('KEY_RETURN')" aria-label="Back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Back</span>
+      </button>
+      <button class="pill-btn" onclick="sendKey('KEY_HOME')" aria-label="Home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Home</span>
+      </button>
+      <button class="pill-btn" onclick="sendKey('KEY_PLAY')" aria-label="Play / Pause">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <span>Play</span>
+      </button>
+    </div>
+
+    <!-- Vertical Rockers (Volume & Channels / Navigation) -->
+    <div class="rockers-section">
+      <!-- Volume Rocker -->
+      <div class="rocker">
+        <button class="rocker-btn" onclick="sendKey('KEY_VOLUP')" aria-label="Volume Up">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <span class="rocker-label">VOL</span>
+        <button class="rocker-btn" onclick="sendKey('KEY_VOLDOWN')" aria-label="Volume Down">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mute Pill Button in Middle -->
+      <button class="icon-btn" style="align-self: center;" onclick="sendKey('KEY_MUTE')" aria-label="Mute">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+
+      <!-- Channel Rocker -->
+      <div class="rocker">
+        <button class="rocker-btn" onclick="sendKey('KEY_CHUP')" aria-label="Channel Up">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+        </button>
+        <span class="rocker-label">CH</span>
+        <button class="rocker-btn" onclick="sendKey('KEY_CHDOWN')" aria-label="Channel Down">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick App Launchers Grid -->
+    <div class="apps-section">
+      <div class="section-title">Quick Launch</div>
+      <div class="apps-grid">
+        <button class="app-card" onclick="launchApp('fiZNCxMH9Y.Hotstar')">
+          <img src="icons/hotstar.png" alt="JioHotstar" class="app-icon">
+          <span class="app-name">Hotstar</span>
+        </button>
+        <button class="app-card" onclick="launchApp('org.tizen.netflix-app')">
+          <img src="icons/netflix.svg" alt="Netflix" class="app-icon">
+          <span class="app-name">Netflix</span>
+        </button>
+        <button class="app-card" onclick="launchApp('org.tizen.primevideo')">
+          <img src="icons/prime-video.svg" alt="Prime Video" class="app-icon">
+          <span class="app-name">Prime</span>
+        </button>
+        <button class="app-card" onclick="launchApp('9Ur5IzDKqV.TizenYouTube')">
+          <img src="icons/youtube.svg" alt="YouTube" class="app-icon">
+          <span class="app-name">YouTube</span>
+        </button>
+        <button class="app-card" onclick="launchApp('IkWsFHtOY9.Stremio')">
+          <img src="icons/stremio.png" alt="Stremio" class="app-icon">
+          <span class="app-name">Stremio</span>
+        </button>
+        <button class="app-card" onclick="launchApp('EUKHUxrGQA.SonyLIV')">
+          <img src="icons/sonyliv.png" alt="Sony LIV" class="app-icon">
+          <span class="app-name">Sony LIV</span>
+        </button>
+        <button class="app-card" onclick="launchApp('hdmi:14')">
+          <img src="icons/jio.svg" alt="Cable Box" class="app-icon">
+          <span class="app-name">Cable Box</span>
+        </button>
+        <button class="app-card" onclick="launchApp('page:1')">
+          <img src="icons/other-apps.svg" alt="All Apps" class="app-icon">
+          <span class="app-name">All Apps</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal Drawer -->
+  <div id="settingsModal" class="modal-overlay" onclick="closeSettings()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">Remote Settings</div>
+        <button class="icon-btn" onclick="closeSettings()">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="channelInput">Device Relay Channel</label>
+        <input type="text" id="channelInput" class="text-input" placeholder="e.g. samsung-remote-xxxx">
+        <small style="display:block; margin-top: 6px; font-size: 11px; color: var(--text-muted);">
+          Matches the channel in your local bridge script.
+        </small>
+      </div>
+      <button class="save-btn" onclick="saveSettings()">Save & Reconnect</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
